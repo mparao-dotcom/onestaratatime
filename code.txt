@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Performance Program | CSAT Initiative</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        warm: {
+                            50: '#fdfbf7',  // Main Bg
+                            100: '#f3eee6', // Surface
+                            200: '#e6decb', // Borders/Hover
+                            700: '#5c4e40', // Secondary Text
+                            900: '#3d342b'  // Primary Text
+                        },
+                        gold: {
+                            400: '#eebb55',
+                            500: '#d9a05b', // Accent
+                            600: '#b88242'
+                        },
+                        alert: {
+                            500: '#c25934'  // Warnings/Rules
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        .nav-link.active {
+            border-bottom: 2px solid #d9a05b;
+            color: #d9a05b;
+            font-weight: 600;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-panel {
+            background: rgba(243, 238, 230, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(230, 222, 203, 0.5);
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals with Gold Accents (fdfbf7, f3eee6, 3d342b, d9a05b) -->
+    <!-- Application Structure Plan: The SPA is structured as a vertical dashboard to guide stakeholders through the initiative logically. It starts with the Executive Summary and core KPIs (Objectives) to establish the 'why'. It then moves into the 'how' via an interactive step-by-step 'Reward Loop' mechanic. To emphasize that this is a performance program and not just a payout, the 'TL Coaching Integration' is featured next with interactive tabs. A dynamic 'Financial Projections' chart allows stakeholders to model costs based on survey volume. Finally, the E-store and Guidelines provide operational boundaries. This single-page flow ensures all context is retained while interacting with specific program elements. -->
+    <!-- Visualization & Content Choices: 
+         1. Objectives -> Goal: Inform -> Dynamic Stat Cards -> Interaction: Hover effects -> Justification: Quick scanning of critical KPIs. -> Method: HTML/Tailwind.
+         2. Reward Loop -> Goal: Process -> Interactive Stepper -> Interaction: Clickable steps revealing details -> Justification: Breaks down the process into digestible chunks without overwhelming the user. -> Method: Vanilla JS + HTML.
+         3. TL Coaching -> Goal: Organize -> Tabbed Interface -> Interaction: Click to switch context -> Justification: Groups related coaching pillars cleanly. -> Method: Vanilla JS + HTML.
+         4. Financials -> Goal: Change/Compare -> Line Chart with Range Slider -> Interaction: Slider adjusts 'Base Survey Volume' and updates chart real-time -> Justification: Allows stakeholders to instantly see the self-regulating budget impact based on team performance. -> Method: Chart.js.
+         Confirming NO SVG/Mermaid. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-warm-50 text-warm-900 font-sans antialiased overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-warm-50/90 backdrop-blur-md z-50 border-b border-warm-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="text-2xl text-gold-500">&#x2B50;</span>
+                    <span class="font-bold text-lg tracking-tight">Star Performance</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#overview" class="nav-link active text-warm-700 hover:text-gold-500 px-1 py-5 text-sm font-medium transition-colors">Overview</a>
+                    <a href="#mechanics" class="nav-link text-warm-700 hover:text-gold-500 px-1 py-5 text-sm font-medium transition-colors">Mechanics</a>
+                    <a href="#coaching" class="nav-link text-warm-700 hover:text-gold-500 px-1 py-5 text-sm font-medium transition-colors">Coaching Impact</a>
+                    <a href="#financials" class="nav-link text-warm-700 hover:text-gold-500 px-1 py-5 text-sm font-medium transition-colors">Financials</a>
+                    <a href="#store-rules" class="nav-link text-warm-700 hover:text-gold-500 px-1 py-5 text-sm font-medium transition-colors">E-Store & Rules</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 space-y-24">
+
+        <!-- Section 1: Overview -->
+        <section id="overview" class="scroll-mt-24">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-warm-900 mb-6">Driving Excellence, <span class="text-gold-500">One Star at a Time.</span></h1>
+                <p class="text-lg text-warm-700 leading-relaxed">
+                    The <strong>Star Performance Program</strong> is our refined CSAT initiative. We are moving beyond standard metrics to create immediate, visual, and tangible rewards. Our goal is twofold: dramatically increase CSAT responses and empower Team Leads to use 5-star interactions as benchmarks for impactful coaching.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-panel p-6 rounded-2xl shadow-sm text-center transform transition duration-300 hover:-translate-y-1">
+                    <div class="text-3xl mb-2">&#x1F4C8;</div>
+                    <div class="text-sm text-warm-700 font-semibold uppercase tracking-wider mb-1">Floor Target</div>
+                    <div class="text-4xl font-bold text-gold-500">4.25</div>
+                    <div class="text-xs text-warm-700 mt-2">Minimum monthly average to qualify</div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl shadow-sm text-center transform transition duration-300 hover:-translate-y-1">
+                    <div class="text-3xl mb-2">&#x1F4B0;</div>
+                    <div class="text-sm text-warm-700 font-semibold uppercase tracking-wider mb-1">Reward Value</div>
+                    <div class="text-4xl font-bold text-gold-500">&#x20B1;20</div>
+                    <div class="text-xs text-warm-700 mt-2">Per 5-star rating earned</div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl shadow-sm text-center transform transition duration-300 hover:-translate-y-1">
+                    <div class="text-3xl mb-2">&#x1F4CA;</div>
+                    <div class="text-sm text-warm-700 font-semibold uppercase tracking-wider mb-1">Volume Req.</div>
+                    <div class="text-4xl font-bold text-gold-500">10</div>
+                    <div class="text-xs text-warm-700 mt-2">Minimum surveys per month</div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl shadow-sm text-center transform transition duration-300 hover:-translate-y-1">
+                    <div class="text-3xl mb-2">&#x1F31F;</div>
+                    <div class="text-sm text-warm-700 font-semibold uppercase tracking-wider mb-1">Core Focus</div>
+                    <div class="text-2xl font-bold text-gold-500 mt-2">Visibility</div>
+                    <div class="text-xs text-warm-700 mt-2">Physical stars on monitors</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Mechanics -->
+        <section id="mechanics" class="scroll-mt-24 bg-warm-100 rounded-3xl p-8 md:p-12 border border-warm-200">
+            <div class="max-w-3xl mb-10">
+                <h2 class="text-3xl font-bold mb-4">The Reward Loop: "See a 5, Give a Star"</h2>
+                <p class="text-warm-700 text-lg">
+                    This section details the operational mechanics of the initiative. The core concept relies on immediacy. By recognizing a 5-star rating right when it happens, we reinforce positive behavior instantly. Click through the steps below to explore the agent experience.
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12 items-center">
+                <!-- Interactive Stepper -->
+                <div class="w-full lg:w-1/2 space-y-4">
+                    <button onclick="showStep(1)" id="btn-step-1" class="step-btn w-full text-left p-5 rounded-xl border-2 border-gold-500 bg-white shadow-md transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center font-bold">1</div>
+                            <h3 class="font-bold text-lg">System Notification</h3>
+                        </div>
+                    </button>
+                    <button onclick="showStep(2)" id="btn-step-2" class="step-btn w-full text-left p-5 rounded-xl border-2 border-transparent bg-warm-50 hover:bg-white transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-warm-200 text-warm-700 flex items-center justify-center font-bold">2</div>
+                            <h3 class="font-bold text-lg">Floor Recognition</h3>
+                        </div>
+                    </button>
+                    <button onclick="showStep(3)" id="btn-step-3" class="step-btn w-full text-left p-5 rounded-xl border-2 border-transparent bg-warm-50 hover:bg-white transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-warm-200 text-warm-700 flex items-center justify-center font-bold">3</div>
+                            <h3 class="font-bold text-lg">Physical Symbol</h3>
+                        </div>
+                    </button>
+                    <button onclick="showStep(4)" id="btn-step-4" class="step-btn w-full text-left p-5 rounded-xl border-2 border-transparent bg-warm-50 hover:bg-white transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-warm-200 text-warm-700 flex items-center justify-center font-bold">4</div>
+                            <h3 class="font-bold text-lg">Monetary Value</h3>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Step Content Display -->
+                <div class="w-full lg:w-1/2 bg-white p-8 rounded-2xl shadow-lg min-h-[250px] flex flex-col justify-center border border-warm-200">
+                    <div id="content-step-1" class="step-content">
+                        <div class="text-4xl mb-4">&#x1F4E7;</div>
+                        <h4 class="text-2xl font-bold mb-2">Real-time Alert</h4>
+                        <p class="text-warm-700">When an agent receives a 5-star rating, the Team Lead is immediately notified via our real-time dashboard or an automated email alert. This ensures no win goes unnoticed.</p>
+                    </div>
+                    <div id="content-step-2" class="step-content hidden">
+                        <div class="text-4xl mb-4">&#x1F44F;</div>
+                        <h4 class="text-2xl font-bold mb-2">Micro-Recognition</h4>
+                        <p class="text-warm-700">The TL approaches the agent’s workstation immediately (or during the next available window) for a brief shout-out or high-five. This public acknowledgment builds immediate floor morale.</p>
+                    </div>
+                    <div id="content-step-3" class="step-content hidden">
+                        <div class="text-4xl mb-4">&#x1F3F7;&#xFE0F;</div>
+                        <h4 class="text-2xl font-bold mb-2">The Golden Star</h4>
+                        <p class="text-warm-700">A physical star (sticker or acrylic token) is placed prominently on the agent’s monitor or workstation. This creates a visible "wall of fame" right at their desk, displaying their success for the month.</p>
+                    </div>
+                    <div id="content-step-4" class="step-content hidden">
+                        <div class="text-4xl mb-4">&#x1F3E6;</div>
+                        <h4 class="text-2xl font-bold mb-2">The "Star Bank"</h4>
+                        <p class="text-warm-700">For every physical star awarded, exactly <strong>&#x20B1;20.00</strong> is credited to the agent's virtual Star Bank. These funds accumulate over the month and unlock for redemption if the 4.25 CSAT threshold is met.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Coaching Integration -->
+        <section id="coaching" class="scroll-mt-24">
+            <div class="max-w-3xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold mb-4">Team Lead Coaching Integration</h2>
+                <p class="text-warm-700 text-lg">
+                    This is not just a payout program; it is a structural coaching tool. The stars provide Team Leads with a framework for "Positive Reinforcement." Select a pillar below to see how TLs will leverage high scores to elevate the entire floor's performance.
+                </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6 justify-center mb-8">
+                <button onclick="openTab('why-tab')" id="btn-why-tab" class="px-6 py-3 rounded-full font-bold bg-gold-500 text-white shadow-md transition-colors">The "Why" Analysis</button>
+                <button onclick="openTab('best-tab')" id="btn-best-tab" class="px-6 py-3 rounded-full font-bold bg-warm-200 text-warm-900 hover:bg-warm-100 transition-colors">Best Practice Sharing</button>
+                <button onclick="openTab('corrective-tab')" id="btn-corrective-tab" class="px-6 py-3 rounded-full font-bold bg-warm-200 text-warm-900 hover:bg-warm-100 transition-colors">Corrective Coaching</button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 md:p-12 border border-warm-200 shadow-sm max-w-4xl mx-auto min-h-[200px]">
+                <div id="why-tab" class="tab-content active text-center">
+                    <div class="text-5xl mb-4">&#x1F50D;</div>
+                    <h3 class="text-2xl font-bold mb-4">Deconstructing the Win</h3>
+                    <p class="text-warm-700 text-lg max-w-2xl mx-auto">
+                        During weekly 1-on-1s, TLs will not just focus on errors. They will review specific transcripts or call recordings of 5-star interactions. The goal is to identify exactly <em>why</em> the customer was delighted, reinforcing those specific behaviors with the agent.
+                    </p>
+                </div>
+                <div id="best-tab" class="tab-content text-center">
+                    <div class="text-5xl mb-4">&#x1F4E2;</div>
+                    <h3 class="text-2xl font-bold mb-4">"Star Call of the Week"</h3>
+                    <p class="text-warm-700 text-lg max-w-2xl mx-auto">
+                        Excellence should be shared. TLs will select one outstanding interaction from their team to present during group huddles. By breaking down the specific behaviors that led to the high score, top performers become standard-setters for the team.
+                    </p>
+                </div>
+                <div id="corrective-tab" class="tab-content text-center">
+                    <div class="text-5xl mb-4">&#x1F91D;</div>
+                    <h3 class="text-2xl font-bold mb-4">Peer-to-Peer Learning</h3>
+                    <p class="text-warm-700 text-lg max-w-2xl mx-auto">
+                        For agents currently falling below the critical 4.25 qualifier, TLs will use the documented "Star" transcripts from top performers. This provides a practical, proven, and localized learning tool rather than generic coaching advice.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Financials -->
+        <section id="financials" class="scroll-mt-24 bg-warm-900 text-warm-50 rounded-3xl p-8 md:p-12 shadow-xl">
+            <div class="max-w-3xl mb-10">
+                <h2 class="text-3xl font-bold mb-4 text-white">Financial Sustainability</h2>
+                <p class="text-warm-200 text-lg">
+                    This section demonstrates the self-regulating nature of the program's budget. Higher payouts directly correlate with exceptionally high CSAT—which drives client retention. Use the slider below to simulate projected monthly costs per team based on total survey volume and the percentage of 5-star responses.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-warm-700/50 p-6 rounded-2xl border border-warm-700">
+                        <label for="surveyVolume" class="block text-sm font-bold uppercase tracking-wider mb-2 text-gold-400">Total Surveys Per Team / Month</label>
+                        <div class="flex items-center gap-4">
+                            <input type="range" id="surveyVolume" min="50" max="300" step="10" value="100" class="w-full h-2 bg-warm-900 rounded-lg appearance-none cursor-pointer accent-gold-500">
+                            <span id="volumeValue" class="text-2xl font-bold text-white w-12">100</span>
+                        </div>
+                        <p class="text-xs text-warm-200 mt-3">Adjusting this slider recalculates the chart based on &#x20B1;20 per 5-star rating.</p>
+                    </div>
+                    
+                    <div class="bg-warm-700/50 p-6 rounded-2xl border border-warm-700">
+                        <div class="text-sm font-bold uppercase tracking-wider mb-1 text-gold-400">Budgeting Note</div>
+                        <p class="text-sm text-warm-200">
+                            If the program becomes expensive, it means CSAT is exceptionally high. The budget is inherently tied to positive business outcomes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="chart-container bg-warm-50 rounded-2xl p-4 border-4 border-gold-500/20 shadow-inner">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: E-Store & Guidelines -->
+        <section id="store-rules" class="scroll-mt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <!-- E-Store -->
+                <div>
+                    <h2 class="text-3xl font-bold mb-4">The E-Store Redemption</h2>
+                    <p class="text-warm-700 mb-8">
+                        Once a month, agents meeting the <strong>4.25 CSAT qualifier</strong> can "spend" their accumulated Star Bank earnings via a shared tracker portal. Here is a preview of proposed inventory categories:
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="border border-warm-200 bg-white p-5 rounded-xl hover:border-gold-500 transition-colors">
+                            <div class="text-3xl mb-2">&#x1F354;</div>
+                            <h4 class="font-bold mb-1">Food & Beverage</h4>
+                            <p class="text-sm text-warm-700">Vouchers for GrabFood, FoodPanda, or local coffee shops.</p>
+                        </div>
+                        <div class="border border-warm-200 bg-white p-5 rounded-xl hover:border-gold-500 transition-colors">
+                            <div class="text-3xl mb-2">&#x1F6CD;&#xFE0F;</div>
+                            <h4 class="font-bold mb-1">Shopping Credits</h4>
+                            <p class="text-sm text-warm-700">E-wallet top-ups for Lazada or Shopee platforms.</p>
+                        </div>
+                        <div class="border border-warm-200 bg-white p-5 rounded-xl hover:border-gold-500 transition-colors">
+                            <div class="text-3xl mb-2">&#x1F3B1;</div>
+                            <h4 class="font-bold mb-1">Lifestyle Perks</h4>
+                            <p class="text-sm text-warm-700">Early out passes, "Dress Down" days, preferred shifts.</p>
+                        </div>
+                        <div class="border border-warm-200 bg-white p-5 rounded-xl hover:border-gold-500 transition-colors">
+                            <div class="text-3xl mb-2">&#x1F3A7;</div>
+                            <h4 class="font-bold mb-1">Physical Merch</h4>
+                            <p class="text-sm text-warm-700">Customized headsets, mousepads, and insulated tumblers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidelines -->
+                <div class="bg-alert-500/10 border border-alert-500/30 p-8 rounded-3xl">
+                    <h2 class="text-3xl font-bold mb-4 text-warm-900 flex items-center gap-3">
+                        <span class="text-alert-500">&#x26A0;&#xFE0F;</span> Guidelines & Ethics
+                    </h2>
+                    <p class="text-warm-700 mb-6">
+                        To maintain fairness and program integrity, the following rules apply to all participants:
+                    </p>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="text-alert-500 font-bold mt-1">&#x2716;&#xFE0F;</span>
+                            <div>
+                                <strong class="text-warm-900 block">No Gaming the System</strong>
+                                <span class="text-sm text-warm-700">Any agent found "cherry-picking" customers or manipulating survey sends will be disqualified for the entire quarter.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-alert-500 font-bold mt-1">&#x2716;&#xFE0F;</span>
+                            <div>
+                                <strong class="text-warm-900 block">Non-Transferability</strong>
+                                <span class="text-sm text-warm-700">Star values and accumulated funds cannot be transferred, gifted, or traded between agents.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-gold-500 font-bold mt-1">&#x21BA;</span>
+                            <div>
+                                <strong class="text-warm-900 block">Monthly Physical Reset</strong>
+                                <span class="text-sm text-warm-700">Physical stars remain on monitors for the current month to show progress, but are cleared on the 1st of every month to keep the floor competition fresh. (Banked funds pending redemption remain).</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-warm-900 text-warm-200 py-8 border-t border-warm-700">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="font-bold mb-2">Next Steps Prepared for Today's Meeting:</p>
+            <div class="flex justify-center gap-4 text-sm mb-4">
+                <span class="bg-warm-700 px-3 py-1 rounded-full">1. Finalize Star Vendor</span>
+                <span class="bg-warm-700 px-3 py-1 rounded-full">2. Define E-Store Platform</span>
+                <span class="bg-warm-700 px-3 py-1 rounded-full">3. Set 30-Day Pilot Date</span>
+            </div>
+            <p class="text-xs opacity-50">&copy; Internal CSAT Initiative Proposal. Confidential.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Navigation Scroll Spy ---
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active", "border-b-2", "border-gold-500", "text-gold-500");
+                link.classList.add("text-warm-700");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                    link.style.borderBottom = "2px solid #d9a05b";
+                    link.style.color = "#d9a05b";
+                } else {
+                    link.style.borderBottom = "none";
+                }
+            });
+        });
+
+        // --- Mechanics Stepper Logic ---
+        function showStep(stepNum) {
+            // Reset buttons
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                btn.classList.remove('border-gold-500', 'bg-white', 'shadow-md');
+                btn.classList.add('border-transparent', 'bg-warm-50');
+                
+                // Reset circle color
+                const circle = btn.querySelector('div > div');
+                circle.classList.remove('bg-gold-500', 'text-white');
+                circle.classList.add('bg-warm-200', 'text-warm-700');
+            });
+
+            // Reset contents
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Activate chosen button
+            const activeBtn = document.getElementById(`btn-step-${stepNum}`);
+            activeBtn.classList.remove('border-transparent', 'bg-warm-50');
+            activeBtn.classList.add('border-gold-500', 'bg-white', 'shadow-md');
+            
+            const activeCircle = activeBtn.querySelector('div > div');
+            activeCircle.classList.remove('bg-warm-200', 'text-warm-700');
+            activeCircle.classList.add('bg-gold-500', 'text-white');
+
+            // Show chosen content
+            const activeContent = document.getElementById(`content-step-${stepNum}`);
+            activeContent.classList.remove('hidden');
+            // Re-trigger animation
+            activeContent.style.animation = 'none';
+            activeContent.offsetHeight; /* trigger reflow */
+            activeContent.style.animation = 'fadeIn 0.3s ease-in-out';
+        }
+
+        // --- Coaching Tabs Logic ---
+        function openTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Reset all buttons
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+                if(btn.id.includes('tab')) {
+                    btn.classList.remove('bg-gold-500', 'text-white', 'shadow-md');
+                    btn.classList.add('bg-warm-200', 'text-warm-900');
+                }
+            });
+
+            // Show target content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Highlight active button
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('bg-warm-200', 'text-warm-900');
+            activeBtn.classList.add('bg-gold-500', 'text-white', 'shadow-md');
+        }
+
+        // --- Chart.js Financial Projections Logic ---
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        
+        // Base Data Variables
+        const rewardPerStar = 20;
+        const rates = [50, 60, 70, 80, 90, 100]; // 5-Star Percentages
+        
+        // Function to calculate costs based on volume
+        function calculateCosts(volume) {
+            return rates.map(rate => {
+                const starsEarned = volume * (rate / 100);
+                return starsEarned * rewardPerStar;
+            });
+        }
+
+        // Initial Chart Setup
+        let initialVolume = 100;
+        let chartConfig = {
+            type: 'bar',
+            data: {
+                labels: rates.map(r => r + '% 5-Star Rate'),
+                datasets: [{
+                    label: 'Projected Cost (₱) per Team',
+                    data: calculateCosts(initialVolume),
+                    backgroundColor: '#d9a05b', // gold-500
+                    borderRadius: 6,
+                    hoverBackgroundColor: '#c25934' // alert-500 highlight
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '₱ ' + context.parsed.y.toLocaleString();
+                            }
+                        },
+                        backgroundColor: '#3d342b',
+                        titleFont: { family: 'Inter', size: 14 },
+                        bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e6decb' },
+                        ticks: {
+                            font: { family: 'Inter', color: '#5c4e40' },
+                            callback: function(value) {
+                                return '₱' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', color: '#5c4e40' } }
+                    }
+                }
+            }
+        };
+
+        const financialChart = new Chart(ctx, chartConfig);
+
+        // Interaction: Range Slider updates Chart
+        const volumeSlider = document.getElementById('surveyVolume');
+        const volumeValueDisplay = document.getElementById('volumeValue');
+
+        volumeSlider.addEventListener('input', function(e) {
+            const currentVolume = parseInt(e.target.value);
+            volumeValueDisplay.textContent = currentVolume;
+            
+            // Update chart data
+            financialChart.data.datasets[0].data = calculateCosts(currentVolume);
+            financialChart.update();
+        });
+
+    </script>
+</body>
+</html>
